@@ -16,6 +16,15 @@
     <button onclick="searchUser()">Search</button>
   </div>
 
+  <div>
+    <label for="reposPerPage">Repos per page:</label>
+    <select id="reposPerPage" onchange="searchUser()">
+      <option value="10">5</option>
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+
   <div id="userDetails"></div>
   <div id="reposList"></div>
   <div id="pagination"></div>
@@ -25,12 +34,13 @@
 
     async function searchUser() {
       const username = document.getElementById("username").value;
+      const reposPerPage = document.getElementById("reposPerPage").value;
       const userDetailsElement = document.getElementById("userDetails");
       const reposListElement = document.getElementById("reposList");
       const paginationElement = document.getElementById("pagination");
 
-      // Clear previous results
-      userDetailsElement.innerHTML = "";
+      // Clear previous results and display loading text
+      userDetailsElement.innerHTML = "Loading...";
       reposListElement.innerHTML = "";
       paginationElement.innerHTML = "";
 
@@ -50,7 +60,6 @@
         `;
 
         // Display repositories (pagination)
-        const reposPerPage = 10;
         const totalPages = Math.ceil(userData.public_repos / reposPerPage);
 
         let currentPage = 1;
@@ -65,6 +74,9 @@
         }
 
         async function displayRepos(page) {
+          // Display loading text during API call
+          reposListElement.innerHTML = "Loading...";
+
           currentPage = page;
           const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
           const reposToShow = await response.json();
