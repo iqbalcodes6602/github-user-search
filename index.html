@@ -1,102 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub User Info</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        #result {
-            margin-top: 20px;
-        }
-
-        #pagination {
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub User Search</title>
+  <style>
+    /* Add your custom styling here if needed */
+  </style>
 </head>
-
 <body>
 
-    <label for="username">GitHub Username:</label>
-    <input type="text" id="username" placeholder="Enter GitHub username">
-    <button onclick="getUserInfo()">Get User Info</button>
+  <div>
+    <label for="username">Enter GitHub Username:</label>
+    <input type="text" id="username" />
+    <button onclick="searchUser()">Search</button>
+  </div>
 
-    <div id="result"></div>
-    <div id="pagination"></div>
+  <div id="userDetails"></div>
+  <div id="reposList"></div>
+  <div id="pagination"></div>
 
-    <script>
-        // Declare variables outside the function
-        let reposData, totalRepos, totalPages;
+  <script>
+    const baseURL = "https://api.github.com";
 
-        async function getUserInfo() {
-            const username = document.getElementById('username').value;
-            const resultDiv = document.getElementById('result');
-            const paginationDiv = document.getElementById('pagination');
+    async function searchUser() {
+      const username = document.getElementById("username").value;
+      const userDetailsElement = document.getElementById("userDetails");
+      const reposListElement = document.getElementById("reposList");
+      const paginationElement = document.getElementById("pagination");
 
-            resultDiv.innerHTML = ''; // Clear previous results
-            paginationDiv.innerHTML = '';
+      // Clear previous results
+      userDetailsElement.innerHTML = "";
+      reposListElement.innerHTML = "";
+      paginationElement.innerHTML = "";
 
-            try {
-                // Fetch user details
-                const userResponse = await fetch(`https://api.github.com/users/${username}`);
-                const userData = await userResponse.json();
+      try {
+        // Fetch user details
+        const userData = await fetchUserDetails(username);
 
-                // Fetch user repositories
-                const reposResponse = await fetch(`https://api.github.com/users/${username}/repos`);
-                reposData = await reposResponse.json();
+        // Fetch user repositories
+        const reposData = await fetchUserRepos(username);
 
-                // Display user details
-                resultDiv.innerHTML = `
-          <h2>User Details:</h2>
-          <p><strong>Name:</strong> ${userData.name}</p>
-          <p><strong>Location:</strong> ${userData.location}</p>
-          <h2>Repositories:</h2>
+        // Display user details
+        userDetailsElement.innerHTML = `
+          <h2>${userData.login}</h2>
+          <p>Name: ${userData.name || 'N/A'}</p>
+          <p>Followers: ${userData.followers}</p>
+          <p>Following: ${userData.following}</p>
         `;
 
-                // Display repositories with pagination
-                const reposPerPage = 10;
-                totalRepos = reposData.length;
-                totalPages = Math.ceil(totalRepos / reposPerPage);
+        // Display repositories (pagination)
+        const reposPerPage = 10;
+        const totalPages = Math.ceil(userData.public_repos / reposPerPage);
 
-                let currentPage = 1;
-                displayRepos(currentPage);
+        let currentPage = 1;
+        displayRepos(currentPage);
 
-                // Display pagination options
-                paginationDiv.innerHTML = `Page: `;
-                for (let i = 1; i <= totalPages; i++) {
-                    paginationDiv.innerHTML += `<button onclick="displayRepos(${i})">${i}</button>`;
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `<p>No user found with the username "${username}".</p>`;
-            }
+        // Display pagination buttons
+        for (let i = 1; i <= totalPages; i++) {
+          const button = document.createElement("button");
+          button.innerText = i;
+          button.addEventListener("click", () => displayRepos(i));
+          paginationElement.appendChild(button);
         }
 
-        function displayRepos(page) {
-            const paginationDiv = document.getElementById('pagination');
-            const reposDiv = document.getElementById('result');
+        async function displayRepos(page) {
+          currentPage = page;
+          const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
+          const reposToShow = await response.json();
 
-            paginationDiv.innerHTML = `Page: `;
-            for (let i = 1; i <= totalPages; i++) {
-                paginationDiv.innerHTML += `<button onclick="displayRepos(${i})">${i}</button>`;
-            }
-
-            reposDiv.innerHTML = `<h2>Repositories (Page ${page}):</h2>`;
-            const reposPerPage = 10;
-            const startIdx = (page - 1) * reposPerPage;
-            const endIdx = startIdx + reposPerPage;
-
-            for (let i = startIdx; i < endIdx && i < totalRepos; i++) {
-                reposDiv.innerHTML += `<p>${reposData[i].name}</p>`;
-            }
+          reposListElement.innerHTML = reposToShow.map(repo => `<p>${repo.name}</p>`).join("");
         }
-    </script>
+
+      } catch (error) {
+        userDetailsElement.innerHTML = "No user found.";
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    async function fetchUserDetails(username) {
+      const response = await fetch(`${baseURL}/users/${username}`);
+      return response.json();
+    }
+
+    async function fetchUserRepos(username) {
+      const response = await fetch(`${baseURL}/users/${username}/repos`);
+      return response.json();
+    }
+  </script>
 
 </body>
-
 </html>
