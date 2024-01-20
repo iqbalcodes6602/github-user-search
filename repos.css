@@ -1,0 +1,44 @@
+#reposList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .repo-card {
+    flex: 0 0 calc(30% - 20px);
+    max-width: calc(30% - 20px);
+    margin: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    @media (min-width: 768px) {
+      width: calc(50% - 20px);
+      flex: 0 0 calc(50% - 20px);
+    }
+  
+    /* Add the following styles for clearfix */
+    &:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+  }
+  
+  .repo-card h3 {
+    font-size: 18px;
+    margin: 0 0 10px;
+  }
+  
+  .repo-card p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  
+  .repo-card strong {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #333;
+  }
+  

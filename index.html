@@ -1,121 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub User Search</title>
-  <style>
-    /* Add your custom styling here if needed */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="user-card.css">
+    <link rel="stylesheet" href="repos.css">
 </head>
+
 <body>
 
-  <div>
-    <label for="username">Enter GitHub Username:</label>
-    <input type="text" id="username" />
-    <button onclick="searchUser()">Search</button>
-  </div>
+    <div>
+        <label for="username">Enter GitHub Username:</label>
+        <input type="text" id="username" />
+        <button onclick="searchUser()">Search</button>
+    </div>
 
-  <div>
-    <label for="reposPerPage">Repos per page:</label>
-    <select id="reposPerPage" onchange="searchUser()">
-      <option value="5">5</option>
-      <option value="10" selected>10</option>
-      <option value="15">15</option>
-    </select>
-  </div>
+    <div>
+        <label for="reposPerPage">Repos per page:</label>
+        <select id="reposPerPage" onchange="searchUser()">
+            <option value="10" selected>10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
 
-  <div>
-    <label for="repoSearch">Search Repositories:</label>
-    <input type="text" id="repoSearch" oninput="searchRepos()" placeholder="Search repositories...">
-  </div>
+    <div>
+        <label for="repoSearch">Search Repositories:</label>
+        <input type="text" id="repoSearch" oninput="searchRepos()" placeholder="Search repositories...">
+    </div>
 
-  <div id="userDetails"></div>
-  <div id="reposList"></div>
-  <div id="pagination"></div>
+    <div id="userDetails"></div>
+    <div id="reposList"></div>
+    <div id="pagination"></div>
 
-  <script>
-    const baseURL = "https://api.github.com";
+    <script>
+        const baseURL = "https://api.github.com";
 
-    async function searchUser() {
-      const username = document.getElementById("username").value;
-      const reposPerPage = document.getElementById("reposPerPage").value;
-      const userDetailsElement = document.getElementById("userDetails");
-      const reposListElement = document.getElementById("reposList");
-      const paginationElement = document.getElementById("pagination");
+        async function searchUser() {
+            const username = document.getElementById("username").value;
+            const reposPerPage = document.getElementById("reposPerPage").value;
+            const userDetailsElement = document.getElementById("userDetails");
+            const reposListElement = document.getElementById("reposList");
+            const paginationElement = document.getElementById("pagination");
 
-      // Clear previous results and display loading text
-      userDetailsElement.innerHTML = "Loading...";
-      reposListElement.innerHTML = "";
-      paginationElement.innerHTML = "";
+            // Clear previous results and display loading text
+            userDetailsElement.innerHTML = "Loading...";
+            reposListElement.innerHTML = "";
+            paginationElement.innerHTML = "";
 
-      try {
-        // Fetch user details
-        const userData = await fetchUserDetails(username);
+            try {
+                // Fetch user details
+                const userData = await fetchUserDetails(username);
 
-        // Fetch user repositories
-        const reposData = await fetchUserRepos(username);
+                // Fetch user repositories
+                const reposData = await fetchUserRepos(username);
 
-        // Display user details
-        userDetailsElement.innerHTML = `
-          <h2>${userData.login}</h2>
-          <p>Name: ${userData.name || 'N/A'}</p>
-          <p>Followers: ${userData.followers}</p>
-          <p>Following: ${userData.following}</p>
+                // Display user details
+                userDetailsElement.innerHTML = `
+                    <div class="user-card">
+                    <div class="user-header">
+                        <h2>${userData.login}</h2>
+                        <img src="${userData.avatar_url}" alt="User Avatar">
+                    </div>
+                    <div class="user-details">
+                        <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
+                        <p><strong>Followers:</strong> ${userData.followers}</p>
+                        <p><strong>Following:</strong> ${userData.following}</p>
+                    </div>
+                    </div>
         `;
 
-        // Display repositories (pagination)
-        const totalPages = Math.ceil(userData.public_repos / reposPerPage);
+                // Display repositories (pagination)
+                const totalPages = Math.ceil(userData.public_repos / reposPerPage);
 
-        let currentPage = 1;
-        displayRepos(currentPage);
+                let currentPage = 1;
+                displayRepos(currentPage);
 
-        // Display pagination buttons
-        for (let i = 1; i <= totalPages; i++) {
-          const button = document.createElement("button");
-          button.innerText = i;
-          button.addEventListener("click", () => displayRepos(i));
-          paginationElement.appendChild(button);
+                // Display pagination buttons
+                for (let i = 1; i <= totalPages; i++) {
+                    const button = document.createElement("button");
+                    button.innerText = i;
+                    button.addEventListener("click", () => displayRepos(i));
+                    paginationElement.appendChild(button);
+                }
+
+                async function displayRepos(page) {
+                    // Display loading text during API call
+                    reposListElement.innerHTML = "Loading...";
+
+                    currentPage = page;
+                    const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
+                    const reposToShow = await response.json();
+
+                    // Filter repos based on search input
+                    const searchTerm = document.getElementById("repoSearch").value.toLowerCase();
+                    const filteredRepos = searchTerm
+                        ? reposToShow.filter(repo => repo.name.toLowerCase().includes(searchTerm))
+                        : reposToShow;
+
+                        reposListElement.innerHTML = filteredRepos.map((repo, index) => `
+  <div class="repo-card">
+    <h3>${repo.name}</h3>
+    <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
+    <p>${repo.private ? '<i class="fas fa-lock"></i> Private' : '<i class="fas fa-globe"></i> Public'}${repo.fork ? '<i class="fas fa-code-branch"></i> Yes' : '<i class="fas fa-code-branch"></i> No'} <i class="fas fa-star"></i> ${repo.stargazers_count}</p>
+    <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'}</p>
+  </div>
+  ${index % 2 === 1 ? '<div class="clearfix"></div>' : ''}
+`).join("");
+
+
+                }
+
+            } catch (error) {
+                userDetailsElement.innerHTML = "No user found.";
+                console.error("Error fetching data:", error);
+            }
         }
 
-        async function displayRepos(page) {
-          // Display loading text during API call
-          reposListElement.innerHTML = "Loading...";
-
-          currentPage = page;
-          const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
-          const reposToShow = await response.json();
-
-          // Filter repos based on search input
-          const searchTerm = document.getElementById("repoSearch").value.toLowerCase();
-          const filteredRepos = searchTerm
-            ? reposToShow.filter(repo => repo.name.toLowerCase().includes(searchTerm))
-            : reposToShow;
-
-          reposListElement.innerHTML = filteredRepos.map(repo => `<p>${repo.name}</p>`).join("");
+        async function fetchUserDetails(username) {
+            const response = await fetch(`${baseURL}/users/${username}`);
+            return response.json();
         }
 
-      } catch (error) {
-        userDetailsElement.innerHTML = "No user found.";
-        console.error("Error fetching data:", error);
-      }
-    }
+        async function fetchUserRepos(username) {
+            const response = await fetch(`${baseURL}/users/${username}/repos`);
+            return response.json();
+        }
 
-    async function fetchUserDetails(username) {
-      const response = await fetch(`${baseURL}/users/${username}`);
-      return response.json();
-    }
-
-    async function fetchUserRepos(username) {
-      const response = await fetch(`${baseURL}/users/${username}/repos`);
-      return response.json();
-    }
-
-    function searchRepos() {
-      // Trigger search when the user types in the search input
-      searchUser();
-    }
-  </script>
+        function searchRepos() {
+            // Trigger search when the user types in the search input
+            searchUser();
+        }
+    </script>
 
 </body>
+
 </html>
