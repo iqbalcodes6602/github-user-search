@@ -57,30 +57,36 @@
             userDetailsElement.innerHTML = "<img class='laoding-image' src='./loading.svg' />";
             reposListElement.innerHTML = "";
             paginationElement.innerHTML = "";
-            
+
             userDetailsElement.scrollIntoView({ behavior: 'smooth' });
 
             try {
                 // Fetch user details
                 const userData = await fetchUserDetails(username);
 
+                if (!userData || userData.message === "Not Found") {
+                    // Display a message when no user is found
+                    userDetailsElement.innerHTML = "No user found.";
+                    return;
+                }
+
                 // Fetch user repositories
                 const reposData = await fetchUserRepos(username);
 
                 // Display user details
                 userDetailsElement.innerHTML = `
-                <div class="user-card">
-                    <div class="user-left">
-                        <h2>${userData.login}</h2>
-                        <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
-                        <p><strong>Followers:</strong> ${userData.followers}</p>
-                        <p><strong>Following:</strong> ${userData.following}</p>
-                        <p><strong>Following:</strong> ${userData.following}</p>
-                    </div>
-                    <div class="user-img">
-                        <img src="${userData.avatar_url}" alt="User Avatar">
-                    </div>
+            <div class="user-card">
+                <div class="user-left">
+                    <h2>${userData.login}</h2>
+                    <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
+                    <p><strong>Followers:</strong> ${userData.followers}</p>
+                    <p><strong>Following:</strong> ${userData.following}</p>
+                    <p><strong>Following:</strong> ${userData.following}</p>
                 </div>
+                <div class="user-img">
+                    <img src="${userData.avatar_url}" alt="User Avatar">
+                </div>
+            </div>
         `;
 
                 // Display repositories (pagination)
@@ -124,21 +130,22 @@
                         : reposToShow;
 
                     reposListElement.innerHTML = filteredRepos.map((repo, index) => `
-                    <a href="https://github.com/${username}/${repo.name}" target="_blank">
-                        <div class="repo-card">
-                            <h3>${repo.name}</h3>
-                            <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
-                            <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'} &nbsp;&nbsp;&nbsp; ${repo.private ? '<strong><i class="fas fa-lock"></i></strong> Private' : '<strong><i class="fas fa-globe"></i></strong> Public'} &nbsp;&nbsp;&nbsp; ${repo.fork ? '<strong><i class="fas fa-code-branch"></i></strong> Yes' : '<strong><i class="fas fa-code-branch"></i></strong> No'} &nbsp;&nbsp;&nbsp; <strong><i class="fas fa-star"></i></strong> ${repo.stargazers_count}</p>
-                        </div>
-                    </a>
-                `).join("");
+                <a href="https://github.com/${username}/${repo.name}" target="_blank">
+                    <div class="repo-card">
+                        <h3>${repo.name}</h3>
+                        <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
+                        <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'} &nbsp;&nbsp;&nbsp; ${repo.private ? '<strong><i class="fas fa-lock"></i></strong> Private' : '<strong><i class="fas fa-globe"></i></strong> Public'} &nbsp;&nbsp;&nbsp; ${repo.fork ? '<strong><i class="fas fa-code-branch"></i></strong> Yes' : '<strong><i class="fas fa-code-branch"></i></strong> No'} &nbsp;&nbsp;&nbsp; <strong><i class="fas fa-star"></i></strong> ${repo.stargazers_count}</p>
+                    </div>
+                </a>
+            `).join("");
                 }
 
             } catch (error) {
-                userDetailsElement.innerHTML = "No user found.";
+                userDetailsElement.innerHTML = "Error fetching user data.";
                 console.error("Error fetching data:", error);
             }
         }
+
 
         async function fetchUserDetails(username) {
             const response = await fetch(`${baseURL}/users/${username}`);
