@@ -1,0 +1,39 @@
+.page-ops {
+    display: none;
+}
+
+.page-ops-show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 10px;
+    font-weight: bold;
+}
+
+.page-ops-show div {
+    margin: 0 10px;
+}
+
+.page-ops-show input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.page-ops-show input:focus {
+    outline: none;
+}
+
+.page-ops-show select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.page-ops-show:focus{
+    outline: none;
+}
+
+.page-ops-show option {
+    background-color: #fff;
+    color: #333;
+}

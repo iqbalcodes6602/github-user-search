@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub User Search</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous" />
     <link rel="stylesheet" href="global.css">
     <link rel="stylesheet" href="user-card.css">
     <link rel="stylesheet" href="repos.css">
+    <link rel="stylesheet" href="pagianaion.css">
 </head>
 
 <body>
@@ -19,21 +21,23 @@
         <button onclick="searchUser()">Search</button>
     </div>
 
-    <div>
-        <label for="reposPerPage">Repos per page:</label>
-        <select id="reposPerPage" onchange="searchUser()">
-            <option value="10" selected>10</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="repoSearch">Search Repositories:</label>
-        <input type="text" id="repoSearch" oninput="searchRepos()" placeholder="Search repositories...">
-    </div>
-
     <div id="userDetails"></div>
+
+    <div class="page-ops" id="page-ops">
+        <div>
+            <label for="repoSearch">Search Repositories:</label>
+            <input type="text" id="repoSearch" oninput="searchRepos()" placeholder="Type repository name">
+        </div>
+        <div>
+            <label for="reposPerPage">Repos per page:</label>
+            <select id="reposPerPage" onchange="searchUser()">
+                <option value="10" selected>10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </div>
+
     <div id="reposList"></div>
     <div id="pagination"></div>
 
@@ -81,14 +85,26 @@
                 displayRepos(currentPage);
 
                 // Display pagination buttons
+                const preButton = document.createElement("button");
+                preButton.innerText = "Prev";
+                preButton.addEventListener("click", () => displayRepos(currentPage - 1));
+                paginationElement.appendChild(preButton);
                 for (let i = 1; i <= totalPages; i++) {
                     const button = document.createElement("button");
                     button.innerText = i;
                     button.addEventListener("click", () => displayRepos(i));
                     paginationElement.appendChild(button);
                 }
+                document.getElementById("page-ops").setAttribute("class", "page-ops-show")
+                const nextButton = document.createElement("button");
+                nextButton.innerText = "Next";
+                nextButton.addEventListener("click", () => displayRepos(currentPage + 1));
+                paginationElement.appendChild(nextButton);
 
                 async function displayRepos(page) {
+                    if (page < 1 || page > totalPages) {
+                        return;
+                    }
                     // Display loading text during API call
                     reposListElement.innerHTML = "Loading...";
 
@@ -102,17 +118,15 @@
                         ? reposToShow.filter(repo => repo.name.toLowerCase().includes(searchTerm))
                         : reposToShow;
 
-                        reposListElement.innerHTML = filteredRepos.map((repo, index) => `
-  <div class="repo-card">
-    <h3>${repo.name}</h3>
-    <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
-    <p>${repo.private ? '<i class="fas fa-lock"></i> Private' : '<i class="fas fa-globe"></i> Public'}${repo.fork ? '<i class="fas fa-code-branch"></i> Yes' : '<i class="fas fa-code-branch"></i> No'} <i class="fas fa-star"></i> ${repo.stargazers_count}</p>
-    <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'}</p>
-  </div>
-  ${index % 2 === 1 ? '<div class="clearfix"></div>' : ''}
-`).join("");
-
-
+                    reposListElement.innerHTML = filteredRepos.map((repo, index) => `
+                    <a href="https://github.com/${username}/${repo.name}" target="_blank">
+                        <div class="repo-card">
+                            <h3>${repo.name}</h3>
+                            <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
+                            <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'} &nbsp;&nbsp;&nbsp; ${repo.private ? '<strong><i class="fas fa-lock"></i></strong> Private' : '<strong><i class="fas fa-globe"></i></strong> Public'} &nbsp;&nbsp;&nbsp; ${repo.fork ? '<strong><i class="fas fa-code-branch"></i></strong> Yes' : '<strong><i class="fas fa-code-branch"></i></strong> No'} &nbsp;&nbsp;&nbsp; <strong><i class="fas fa-star"></i></strong> ${repo.stargazers_count}</p>
+                        </div>
+                    </a>
+                `).join("");
                 }
 
             } catch (error) {
