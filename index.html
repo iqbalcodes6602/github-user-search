@@ -4,80 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-    <!-- Page style -->
-    <link rel="stylesheet" href="styles/global.css">
-    <link rel="stylesheet" href="styles/header.css">
-    <link rel="stylesheet" href="styles/github.css">
-    <link rel="stylesheet" href="styles/spinner.css">
+        #result {
+            margin-top: 20px;
+        }
 
-    <!-- Nova Square Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Nova+Square&family=Roboto:wght@100;300;400;500;700;900&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-    <title>Github Page</title>
+        #pagination {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Cabeçalho da página -->
-    <header>
-        <h1 class="github-title"><i class="fa-brands fa-github fa-3x"></i><br  />Github User Search</h1>
-        <!-- Container principal do cabeçalho -->
-        <section class="header-container">
-            <!-- Container de pesquisa do usuário -->
-            <article class="search-container">
-                <i class="fa fa-user fa-user"></i>
-                <label for="inputSearch">Username</label>
 
-                <!-- Área de pesquisa -->
-                <div class="search-area">
-                    <input type="text" id="inputSearch" autocomplete="off" placeholder="Type username here"
-                        aria-labelledby="inputSearchLabel">
-                </div>
+    <label for="username">GitHub Username:</label>
+    <input type="text" id="username" placeholder="Enter GitHub username">
+    <button onclick="getUserInfo()">Get User Info</button>
 
-                <!-- Área do botão de pesquisa -->
-                <div class="button-area">
-                    <button id="buttonSearch" disabled aria-label="Search for GitHub User">Search</button>
-                </div>
-            </article>
-        </section>
-    </header>
+    <div id="result"></div>
+    <div id="pagination"></div>
 
-    <!-- Corpo principal da página -->
-    <main>
-        <!-- Container principal -->
-        <section class="container">
-            <!-- Spinner para indicar carregamento -->
-            <div class="lds-ripple" role="status" aria-live="polite">
-                <div></div>
-                <div></div>
-            </div>
+    <script>
+        // Declare variables outside the function
+        let reposData, totalRepos, totalPages;
 
-            <!-- Área do GIF animado do GitHub -->
-            <article class="github-gif-area">
-                <img src="assets/img/github-icon.gif" alt="Animated Github Icon">
+        async function getUserInfo() {
+            const username = document.getElementById('username').value;
+            const resultDiv = document.getElementById('result');
+            const paginationDiv = document.getElementById('pagination');
 
-                <!-- Área personalizada para mensagens de erro -->
-                <p class="custom-area error h2-custom"></p>
-            </article>
+            resultDiv.innerHTML = ''; // Clear previous results
+            paginationDiv.innerHTML = '';
 
-            <!-- Área para exibir informações do usuário -->
-            <article class="user-area"></article>
+            try {
+                // Fetch user details
+                const userResponse = await fetch(`https://api.github.com/users/${username}`);
+                const userData = await userResponse.json();
 
-            <!-- Área para exibir repositórios do usuário -->
-            <article class="repos-area">
-                <h2 class="title-repositories"></h2>
-                <div class="repos"></div>
-            </article>
-        </section>
-    </main>
+                // Fetch user repositories
+                const reposResponse = await fetch(`https://api.github.com/users/${username}/repos`);
+                reposData = await reposResponse.json();
 
-    <!-- Importação do arquivo JavaScript responsável por interagir com a API do GitHub -->
-    <script type="module" src="scripts/github.js"></script>
+                // Display user details
+                resultDiv.innerHTML = `
+          <h2>User Details:</h2>
+          <p><strong>Name:</strong> ${userData.name}</p>
+          <p><strong>Location:</strong> ${userData.location}</p>
+          <h2>Repositories:</h2>
+        `;
+
+                // Display repositories with pagination
+                const reposPerPage = 10;
+                totalRepos = reposData.length;
+                totalPages = Math.ceil(totalRepos / reposPerPage);
+
+                let currentPage = 1;
+                displayRepos(currentPage);
+
+                // Display pagination options
+                paginationDiv.innerHTML = `Page: `;
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationDiv.innerHTML += `<button onclick="displayRepos(${i})">${i}</button>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>No user found with the username "${username}".</p>`;
+            }
+        }
+
+        function displayRepos(page) {
+            const paginationDiv = document.getElementById('pagination');
+            const reposDiv = document.getElementById('result');
+
+            paginationDiv.innerHTML = `Page: `;
+            for (let i = 1; i <= totalPages; i++) {
+                paginationDiv.innerHTML += `<button onclick="displayRepos(${i})">${i}</button>`;
+            }
+
+            reposDiv.innerHTML = `<h2>Repositories (Page ${page}):</h2>`;
+            const reposPerPage = 10;
+            const startIdx = (page - 1) * reposPerPage;
+            const endIdx = startIdx + reposPerPage;
+
+            for (let i = startIdx; i < endIdx && i < totalRepos; i++) {
+                reposDiv.innerHTML += `<p>${reposData[i].name}</p>`;
+            }
+        }
+    </script>
+
 </body>
 
 </html>
