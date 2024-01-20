@@ -37,3 +37,44 @@
     background-color: #fff;
     color: #333;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 10px;
+    font-weight: bold;
+}
+.pagination button{
+    font-weight: bold;
+    padding: 5px;
+    min-width: 25px;
+    border-radius: 5px;
+    border: none;
+    margin: 0 2px;
+    cursor: pointer;
+    background-color: #fff;
+    color: #333;
+}
+.pagination .btn{
+    font-weight: bold;
+    padding: 5px;
+    min-width: 20px;
+    border-radius: 5px;
+    border: none;
+    margin: 0 2px;
+    cursor: pointer;
+    background-color: #fff;
+    color: #333;
+}
+.pagination .btn-active{
+    font-weight: bold;
+    padding: 5px;
+    min-width: 20px;
+    border-radius: 5px;
+    border: none;
+    margin: 0 2px;
+    cursor: pointer;
+    background-color: #F6B17A;
+    color: #fff;
+}

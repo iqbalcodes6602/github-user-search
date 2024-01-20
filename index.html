@@ -11,17 +11,19 @@
     <link rel="stylesheet" href="user-card.css">
     <link rel="stylesheet" href="repos.css">
     <link rel="stylesheet" href="pagianaion.css">
+    <link rel="stylesheet" href="header.css">
 </head>
 
 <body>
 
-    <div>
-        <label for="username">Enter GitHub Username:</label>
-        <input type="text" id="username" />
+    <div class="user-search-header">
+        <img src="./logo.png" alt="GitHub Logo" />
+        <label for="username">Enter GitHub Username</label>
+        <input type="text" id="username" placeholder="username..." />
         <button onclick="searchUser()">Search</button>
     </div>
 
-    <div id="userDetails"></div>
+    <div id="userDetails" class="user-details"></div>
 
     <div class="page-ops" id="page-ops">
         <div>
@@ -39,7 +41,7 @@
     </div>
 
     <div id="reposList"></div>
-    <div id="pagination"></div>
+    <div id="pagination" class="pagination"></div>
 
     <script>
         const baseURL = "https://api.github.com";
@@ -52,9 +54,11 @@
             const paginationElement = document.getElementById("pagination");
 
             // Clear previous results and display loading text
-            userDetailsElement.innerHTML = "Loading...";
+            userDetailsElement.innerHTML = "<img class='laoding-image' src='./loading.svg' />";
             reposListElement.innerHTML = "";
             paginationElement.innerHTML = "";
+            
+            userDetailsElement.scrollIntoView({ behavior: 'smooth' });
 
             try {
                 // Fetch user details
@@ -65,17 +69,18 @@
 
                 // Display user details
                 userDetailsElement.innerHTML = `
-                    <div class="user-card">
-                    <div class="user-header">
+                <div class="user-card">
+                    <div class="user-left">
                         <h2>${userData.login}</h2>
-                        <img src="${userData.avatar_url}" alt="User Avatar">
-                    </div>
-                    <div class="user-details">
                         <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
                         <p><strong>Followers:</strong> ${userData.followers}</p>
                         <p><strong>Following:</strong> ${userData.following}</p>
+                        <p><strong>Following:</strong> ${userData.following}</p>
                     </div>
+                    <div class="user-img">
+                        <img src="${userData.avatar_url}" alt="User Avatar">
                     </div>
+                </div>
         `;
 
                 // Display repositories (pagination)
@@ -106,7 +111,7 @@
                         return;
                     }
                     // Display loading text during API call
-                    reposListElement.innerHTML = "Loading...";
+                    reposListElement.innerHTML = "<img class='laoding-image' src='./loading.svg' />";
 
                     currentPage = page;
                     const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
