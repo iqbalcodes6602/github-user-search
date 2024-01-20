@@ -19,7 +19,7 @@
     <div class="user-search-header">
         <img src="./logo.png" alt="GitHub Logo" />
         <label for="username">Enter GitHub Username</label>
-        <input type="text" id="username" placeholder="username..." />
+        <input autofocus type="text" id="username" placeholder="username..." onkeypress="handleKeyPress(event)" />
         <button onclick="searchUser()">Search</button>
     </div>
 
@@ -66,6 +66,7 @@
 
                 if (!userData || userData.message === "Not Found") {
                     // Display a message when no user is found
+                    document.getElementById("page-ops").setAttribute("class", "page-ops")
                     userDetailsElement.innerHTML = "No user found.";
                     return;
                 }
@@ -178,6 +179,11 @@
                     button.classList.remove("active");
                 }
             });
+        }
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchUser();
+            }
         }
     </script>
 
