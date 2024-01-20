@@ -19,10 +19,15 @@
   <div>
     <label for="reposPerPage">Repos per page:</label>
     <select id="reposPerPage" onchange="searchUser()">
-      <option value="10">5</option>
-      <option value="50" selected>50</option>
-      <option value="100">100</option>
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="15">15</option>
     </select>
+  </div>
+
+  <div>
+    <label for="repoSearch">Search Repositories:</label>
+    <input type="text" id="repoSearch" oninput="searchRepos()" placeholder="Search repositories...">
   </div>
 
   <div id="userDetails"></div>
@@ -81,7 +86,13 @@
           const response = await fetch(`${baseURL}/users/${username}/repos?page=${page}&per_page=${reposPerPage}`);
           const reposToShow = await response.json();
 
-          reposListElement.innerHTML = reposToShow.map(repo => `<p>${repo.name}</p>`).join("");
+          // Filter repos based on search input
+          const searchTerm = document.getElementById("repoSearch").value.toLowerCase();
+          const filteredRepos = searchTerm
+            ? reposToShow.filter(repo => repo.name.toLowerCase().includes(searchTerm))
+            : reposToShow;
+
+          reposListElement.innerHTML = filteredRepos.map(repo => `<p>${repo.name}</p>`).join("");
         }
 
       } catch (error) {
@@ -98,6 +109,11 @@
     async function fetchUserRepos(username) {
       const response = await fetch(`${baseURL}/users/${username}/repos`);
       return response.json();
+    }
+
+    function searchRepos() {
+      // Trigger search when the user types in the search input
+      searchUser();
     }
   </script>
 
