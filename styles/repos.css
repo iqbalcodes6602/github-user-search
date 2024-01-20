@@ -31,4 +31,11 @@
     margin-right: 5px;
     color: #000000;
   }
-  
+  .topics{
+    font-size: 80%;
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: black;
+    margin-right: 5px;
+    background-color: #F6B17A;
+  }

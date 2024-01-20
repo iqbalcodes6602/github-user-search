@@ -25,8 +25,6 @@ async function searchUser() {
             return;
         }
 
-        // call fetchUserRepos function to get user repos
-        const reposData = await fetchUserRepos(username);
 
         // user card for displaying user details
         userDetailsElement.innerHTML = `
@@ -103,6 +101,12 @@ async function searchUser() {
                     <div class="repo-card">
                         <h3>${repo.name}</h3>
                         <p><strong>Description:</strong> ${repo.description ? repo.description : 'No description available'}</p>
+                        
+                        <p><strong>Topics:</strong>
+                        ${repo.topics && repo.topics.length > 0 ? `
+                        ${repo.topics.map(topic => `<span class="topics">${topic}</span>`).join("")}
+                        ` : 'N/A'}
+                        </p>
                         <p><strong>Language:</strong> ${repo.language ? repo.language : 'N/A'} &nbsp;&nbsp;&nbsp; ${repo.private ? '<strong><i class="fas fa-lock"></i></strong> Private' : '<strong><i class="fas fa-globe"></i></strong> Public'} &nbsp;&nbsp;&nbsp; ${repo.fork ? '<strong><i class="fas fa-code-branch"></i></strong> Yes' : '<strong><i class="fas fa-code-branch"></i></strong> No'} &nbsp;&nbsp;&nbsp; <strong><i class="fas fa-star"></i></strong> ${repo.stargazers_count}</p>
                     </div>
                 </a>
@@ -119,12 +123,6 @@ async function searchUser() {
 // fetch user deatils from GitHub API
 async function fetchUserDetails(username) {
     const response = await fetch(`${baseURL}/users/${username}`);
-    return response.json();
-}
-
-// Fetch user repos from GitHub API
-async function fetchUserRepos(username) {
-    const response = await fetch(`${baseURL}/users/${username}/repos`);
     return response.json();
 }
 
