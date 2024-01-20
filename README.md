@@ -8,11 +8,11 @@ This project is a simple web application that allows you to view a GitHub user's
 - View a list of the user's repositories
 - Pagination support to navigate through the repositories
 
-## Demo Video
+## Demo
 
 Here is a short demo of the project:
 
-![Demo Video](./assets/recording.mp4)
+![Demo GIF](./assets/record.gif)
 
 ## How to Use
 
