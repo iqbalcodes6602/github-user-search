@@ -29,7 +29,8 @@
     border: 1px solid #ccc;
     border-radius: 5px;
 }
-.page-ops-show:focus{
+
+.page-ops-show:focus {
     outline: none;
 }
 
@@ -45,7 +46,8 @@
     margin: 10px 10px;
     font-weight: bold;
 }
-.pagination button{
+
+.pagination button {
     font-weight: bold;
     padding: 5px;
     min-width: 25px;
@@ -56,25 +58,8 @@
     background-color: #fff;
     color: #333;
 }
-.pagination .btn{
-    font-weight: bold;
-    padding: 5px;
-    min-width: 20px;
-    border-radius: 5px;
-    border: none;
-    margin: 0 2px;
-    cursor: pointer;
-    background-color: #fff;
-    color: #333;
-}
-.pagination .btn-active{
-    font-weight: bold;
-    padding: 5px;
-    min-width: 20px;
-    border-radius: 5px;
-    border: none;
-    margin: 0 2px;
-    cursor: pointer;
+
+.pagination button.active {
     background-color: #F6B17A;
-    color: #fff;
+    color: white;
 }

@@ -77,11 +77,13 @@
                 userDetailsElement.innerHTML = `
             <div class="user-card">
                 <div class="user-left">
-                    <h2>${userData.login}</h2>
+                    <h2><a href="https://github.com/${username}/" target="_blank">${userData.login}</a></h2>
                     <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
+                    <p><strong>Bio:</strong> ${userData.bio || 'N/A'}</p>
+                    <p><strong>Location:</strong> ${userData.location || 'Somewhere'}</p>
                     <p><strong>Followers:</strong> ${userData.followers}</p>
                     <p><strong>Following:</strong> ${userData.following}</p>
-                    <p><strong>Following:</strong> ${userData.following}</p>
+                    <p><strong>Public Repositories:</strong> ${userData.public_repos}</p>
                 </div>
                 <div class="user-img">
                     <img src="${userData.avatar_url}" alt="User Avatar">
@@ -102,6 +104,9 @@
                 paginationElement.appendChild(preButton);
                 for (let i = 1; i <= totalPages; i++) {
                     const button = document.createElement("button");
+                    if (i === 1) {
+                        button.classList.add("active");
+                    }
                     button.innerText = i;
                     button.addEventListener("click", () => displayRepos(i));
                     paginationElement.appendChild(button);
@@ -116,6 +121,8 @@
                     if (page < 1 || page > totalPages) {
                         return;
                     }
+
+                    highlightSelectedPage(page);
                     // Display loading text during API call
                     reposListElement.innerHTML = "<img class='laoding-image' src='./loading.svg' />";
 
@@ -144,6 +151,7 @@
                 userDetailsElement.innerHTML = "Error fetching user data.";
                 console.error("Error fetching data:", error);
             }
+
         }
 
 
@@ -160,6 +168,16 @@
         function searchRepos() {
             // Trigger search when the user types in the search input
             searchUser();
+        }
+        function highlightSelectedPage(page) {
+            const buttons = document.querySelectorAll("#pagination button");
+            buttons.forEach((button, index) => {
+                if (index === page) {
+                    button.classList.add("active");
+                } else {
+                    button.classList.remove("active");
+                }
+            });
         }
     </script>
 
